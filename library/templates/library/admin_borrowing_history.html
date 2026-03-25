@@ -1,0 +1,57 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Borrowing History</h1>
+
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard' %}" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-md">Back to dashboard</a>
+</div>
+
+<div class="bg-white shadow overflow-hidden rounded-lg">
+    <ul role="list" class="divide-y divide-gray-200">
+        {% for borrowing in borrowings %}
+        <li>
+            <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-lg font-medium text-indigo-600 truncate">{{ borrowing.book.title }}</p>
+                        <p class="mt-1 text-sm text-gray-500">Student: {{ borrowing.student.username }}</p>
+                        <p class="mt-1 text-sm text-gray-500">Requested: {{ borrowing.request_date|date:"F j, Y" }}</p>
+                        {% if borrowing.approved_date %}
+                            <p class="mt-1 text-sm text-gray-500">Approved: {{ borrowing.approved_date|date:"F j, Y" }}</p>
+                        {% endif %}
+                        {% if borrowing.return_date %}
+                            <p class="mt-1 text-sm text-gray-500">Due: {{ borrowing.return_date|date:"F j, Y" }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="ml-4 flex flex-col items-end space-y-2">
+                        {% if borrowing.status == 'APPROVED' %}
+                            <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                Approved
+                            </span>
+                            <form method="post" action="{% url 'mark_as_returned' borrowing.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">Mark Returned</button>
+                            </form>
+                        {% elif borrowing.status == 'RETURNED' %}
+                            <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                Returned
+                            </span>
+                        {% elif borrowing.status == 'REJECTED' %}
+                            <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                Rejected
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </li>
+        {% empty %}
+        <li>
+            <p class="text-center text-gray-500 py-6">No borrowing history found.</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

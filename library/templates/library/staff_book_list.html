@@ -1,0 +1,33 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Books (staff)</h1>
+
+<div class="mb-4">
+    <a href="{% url 'create_book' %}" class="px-4 py-2 bg-green-600 text-white rounded-md">Add book</a>
+    <a href="{% url 'admin_dashboard' %}" class="ml-2 px-4 py-2 bg-gray-100 text-gray-800 rounded-md">Back to dashboard</a>
+</div>
+
+<div class="bg-white shadow overflow-hidden rounded-lg">
+    <ul role="list" class="divide-y divide-gray-200">
+        {% for book in books %}
+        <li>
+            <div class="flex items-center px-4 py-4 sm:px-6">
+                <div class="min-w-0 flex-1">
+                    <p class="text-lg font-medium text-indigo-600 truncate">{{ book.title }}</p>
+                    <p class="mt-1 text-sm text-gray-500">{{ book.author|default:"Unknown" }}</p>
+                </div>
+                <div class="ml-4 space-x-2">
+                    <a href="{% url 'edit_book' book.pk %}" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">Edit</a>
+                    <a href="{% url 'delete_book' book.pk %}" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm">Delete</a>
+                </div>
+            </div>
+        </li>
+        {% empty %}
+        <li>
+            <p class="text-center text-gray-500 py-6">No books found.</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

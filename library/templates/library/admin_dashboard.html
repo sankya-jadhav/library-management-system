@@ -1,0 +1,31 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+
+<div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-white p-6 rounded-md shadow">
+        <p class="text-sm text-gray-500">Total books</p>
+        <p class="text-2xl font-semibold">{{ total_books }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-md shadow">
+        <p class="text-sm text-gray-500">Available</p>
+        <p class="text-2xl font-semibold">{{ available }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-md shadow">
+        <p class="text-sm text-gray-500">Pending requests</p>
+        <p class="text-2xl font-semibold">{{ pending_requests }}</p>
+    </div>
+</div>
+
+<div>
+    <div class="flex flex-wrap gap-2">
+        <a href="{% url 'create_book' %}" class="px-4 py-2 bg-green-600 text-white rounded-md">Insert Book</a>
+        <a href="{% url 'staff_book_list' %}" class="px-4 py-2 bg-red-600 text-white rounded-md">Delete / Manage Books</a>
+        <a href="{% url 'admin_pending_requests' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-md">View pending requests</a>
+        <a href="{% url 'borrowing_history' %}" class="px-4 py-2 bg-purple-600 text-white rounded-md">Borrowing History</a>
+        <a href="/admin/" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-md">Open Django Admin</a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'library/base.html' %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Delete Book</h1>
+
+<form method="post" class="bg-white p-4 rounded-md shadow max-w-2xl">
+    {% csrf_token %}
+    <p>Are you sure you want to delete "{{ book.title }}"?</p>
+    <div class="mt-4">
+        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md">Yes, delete</button>
+        <a href="{% url 'staff_book_list' %}" class="ml-2 px-4 py-2 bg-gray-100 text-gray-800 rounded-md">Cancel</a>
+    </div>
+</form>
+{% endblock %}
