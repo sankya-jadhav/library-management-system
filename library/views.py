@@ -2,7 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.db.models.functions import TruncDate
+import json
 from .models import Book, Borrowing
 from django.utils import timezone
 from datetime import timedelta
@@ -177,14 +179,42 @@ def register(request):
 
 @staff_member_required
 def admin_dashboard(request):
-    """Simple admin dashboard showing counts and quick links."""
+    """Admin dashboard showing counts, quick links, and analytics."""
     total_books = Book.objects.count()
     available = Book.objects.filter(is_available=True).count()
     pending_requests = Borrowing.objects.filter(status='PENDING').count()
+
+    # Top 5 most borrowed books
+    top_books = Book.objects.annotate(borrow_count=Count('borrowings')).filter(borrow_count__gt=0).order_by('-borrow_count')[:5]
+    top_books_labels = [book.title[:30] + '...' if len(book.title) > 30 else book.title for book in top_books]
+    top_books_data = [book.borrow_count for book in top_books]
+
+    # Category distribution
+    categories_qs = Book.objects.exclude(category__isnull=True).exclude(category__exact='').values('category').annotate(count=Count('id')).order_by('-count')
+    category_labels = [item['category'] for item in categories_qs]
+    category_data = [item['count'] for item in categories_qs]
+
+    # Borrowing Activity over the Last 7 Days
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    activity_qs = Borrowing.objects.filter(request_date__gte=seven_days_ago) \
+        .annotate(date=TruncDate('request_date')) \
+        .values('date') \
+        .annotate(count=Count('id')) \
+        .order_by('date')
+    
+    activity_labels = [item['date'].strftime('%Y-%m-%d') for item in activity_qs]
+    activity_data_list = [item['count'] for item in activity_qs]
+
     return render(request, 'library/admin_dashboard.html', {
         'total_books': total_books,
         'available': available,
         'pending_requests': pending_requests,
+        'top_books_labels_json': json.dumps(top_books_labels),
+        'top_books_data_json': json.dumps(top_books_data),
+        'category_labels_json': json.dumps(category_labels),
+        'category_data_json': json.dumps(category_data),
+        'activity_labels_json': json.dumps(activity_labels),
+        'activity_data_json': json.dumps(activity_data_list),
     })
 
 

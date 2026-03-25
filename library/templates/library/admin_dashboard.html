@@ -1,31 +1,188 @@
 {% extends 'library/base.html' %}
 
 {% block content %}
-<h1 class="text-3xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard Overview</h1>
 
-<div class="grid grid-cols-3 gap-4 mb-6">
-    <div class="bg-white p-6 rounded-md shadow">
-        <p class="text-sm text-gray-500">Total books</p>
-        <p class="text-2xl font-semibold">{{ total_books }}</p>
+    <!-- KPI Cards Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Inventory</p>
+                <p class="text-3xl font-bold text-gray-800 mt-2">{{ total_books }}</p>
+            </div>
+            <div class="p-3 bg-blue-50 text-blue-600 rounded-full">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Currently Available</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">{{ available }}</p>
+            </div>
+            <div class="p-3 bg-green-50 text-green-600 rounded-full">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Pending Requests</p>
+                <p class="text-3xl font-bold text-orange-500 mt-2">{{ pending_requests }}</p>
+            </div>
+            <div class="p-3 bg-orange-50 text-orange-500 rounded-full">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+        </div>
     </div>
-    <div class="bg-white p-6 rounded-md shadow">
-        <p class="text-sm text-gray-500">Available</p>
-        <p class="text-2xl font-semibold">{{ available }}</p>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Bar Chart: Top 5 Borrowed Books -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Top 5 Most Borrowed Books</h2>
+            <div class="relative h-64 w-full">
+                <canvas id="topBooksChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Doughnut Chart: Category Distribution -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Inventory by Category</h2>
+            <div class="relative h-64 w-full flex justify-center">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
     </div>
-    <div class="bg-white p-6 rounded-md shadow">
-        <p class="text-sm text-gray-500">Pending requests</p>
-        <p class="text-2xl font-semibold">{{ pending_requests }}</p>
+
+    <!-- Line Chart: Borrowing Activity (Last 7 Days) -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Borrowing Activity over the Last 7 Days</h2>
+        <div class="relative h-72 w-full">
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mt-4">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'create_book' %}" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm">Insert Book</a>
+            <a href="{% url 'staff_book_list' %}" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors shadow-sm">Manage Books</a>
+            <a href="{% url 'admin_pending_requests' %}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm">View Pending Requests</a>
+            <a href="{% url 'borrowing_history' %}" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors shadow-sm">Borrowing History</a>
+            <a href="/admin/" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-lg transition-colors shadow-sm border border-gray-200">Open Django Admin</a>
+        </div>
     </div>
 </div>
 
-<div>
-    <div class="flex flex-wrap gap-2">
-        <a href="{% url 'create_book' %}" class="px-4 py-2 bg-green-600 text-white rounded-md">Insert Book</a>
-        <a href="{% url 'staff_book_list' %}" class="px-4 py-2 bg-red-600 text-white rounded-md">Delete / Manage Books</a>
-        <a href="{% url 'admin_pending_requests' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-md">View pending requests</a>
-        <a href="{% url 'borrowing_history' %}" class="px-4 py-2 bg-purple-600 text-white rounded-md">Borrowing History</a>
-        <a href="/admin/" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-md">Open Django Admin</a>
-    </div>
-</div>
+<!-- Chart.js Integration -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Safely parse JSON data from Django context
+        const topBooksLabels = JSON.parse('{{ top_books_labels_json|escapejs }}');
+        const topBooksData = JSON.parse('{{ top_books_data_json|escapejs }}');
+        const categoryLabels = JSON.parse('{{ category_labels_json|escapejs }}');
+        const categoryData = JSON.parse('{{ category_data_json|escapejs }}');
+        const activityLabels = JSON.parse('{{ activity_labels_json|escapejs }}');
+        const activityData = JSON.parse('{{ activity_data_json|escapejs }}');
 
+        // Top Books Bar Chart
+        const ctxBar = document.getElementById('topBooksChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: topBooksLabels,
+                datasets: [{
+                    label: 'Borrowing Requests',
+                    data: topBooksData,
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)', // Indigo
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Category Doughnut Chart
+        const ctxDoughnut = document.getElementById('categoryChart').getContext('2d');
+        new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryData,
+                    backgroundColor: [
+                        '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+                        '#8B5CF6', '#EC4899', '#14B8A6', '#F97316',
+                        '#6366F1', '#84CC16'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 12 }
+                    }
+                }
+            }
+        });
+
+        // Activity Line Chart
+        const ctxActivity = document.getElementById('activityChart').getContext('2d');
+        new Chart(ctxActivity, {
+            type: 'line',
+            data: {
+                labels: activityLabels,
+                datasets: [{
+                    label: 'Requests per Day',
+                    data: activityData,
+                    borderColor: 'rgba(99, 102, 241, 1)', // Indigo 500
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 2,
+                    fill: 'start', // 'start' works safely in Chart.js v3+ to fill below the line
+                    tension: 0.3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: 'rgba(99, 102, 241, 1)',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}
